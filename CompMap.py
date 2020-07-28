@@ -4,9 +4,9 @@ import argparse
 try:
     import pysam
 except ImportError as er:
-    print """please install pysam:
-pip install pysam\n"""
-    print er
+    print("""please install pysam:
+pip install pysam\n""")
+    print(er)
     sys.exit()
 
 def main():
