@@ -1,2 +1,69 @@
 # CompMap
-Compares reads mapped to two reference and splits best alignments
+Compares reads mapped to two references and splits best alignments into different BAM files
+
+## Dependencies
+
+1. Python 3.x
+2. [pysam](https://pysam.readthedocs.io/en/latest/api.html)
+
+The program requires `pysam` to be installed. To do that just run `pip`:
+
+    pip install pysam
+
+To install locally:
+
+    pip install --user pysam
+
+## Workflow and rationale
+
+The basic workflow of the program consists of two BAM files that are first indexed by read name.
+With a loop through the read names (which should be the same for both files) then you can extract read- and reference-specific alignments.
+The program simply asks: which alignment has better stats?
+
+Stats:
+1. Alignment score ('AS')
+2. Number of mismatches ('nM')
+
+These are hard-coded and based on STAR RNA-seq BAM outputs. They can be changed directly in the code, but *probably a future version will allow you to specify the read tag for a specific stat*.
+
+Next, if the alignmed for read X worked better for reference 1, then that alignment will go to `ref1.bam`. If there are no differences between read alignments (i.e. `'AS' == 100` and `'nM' == 0`, then that read is considered ambiguous and both alignments are sent to files `amb1.bam` and `amb2.bam`, respectively.
+
+## Download/installation
+
+For just the code:
+
+    wget https://raw.githubusercontent.com/santiagosnchez/CompMap/master/CompMap.py
+
+For the whole repo:
+
+    git clone https://github.com/santiagosnchez/CompMap.git
+
+## Arguments
+
+Run the program with the `-h` or `-help` argument to look at the different options and examples.
+
+    python CompMap.py -h
+    usage: CompMap.py [-h] --bam1 BAM1 --bam2 BAM2 --reads READS [--base BASE]
+
+        Compares reads from one sample aligned to two different references 
+        and sorts out the best match for each read to two distinct bam files.
+
+        This program is useful for splitting reads from mixed-read data (e.g. from hybrids).
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --bam1 BAM1, -1 BAM1  first bam file.
+      --bam2 BAM2, -2 BAM2  second bam file.
+      --reads READS, -r READS
+                            a list of reads names
+      --base BASE, -b BASE  base name for your output files (recommended).
+
+    Examples:
+    python CompMap.py -1 first.bam -2 second.bam -r read_name_list -b my_base_name
+
+    Example for read list:
+    ABC-HG000:000:XXXXXXX:1:0010:001:100
+    ABC-HG000:000:XXXXXXX:1:0010:001:110
+    ABC-HG000:000:XXXXXXX:1:0010:001:130
+    ABC-HG000:000:XXXXXXX:1:0010:001:110
+
