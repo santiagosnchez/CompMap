@@ -3,7 +3,7 @@ import sys
 import argparse
 try:
     import pysam
-except ImportError, er:
+except ImportError as er:
     print """please install pysam:
 pip install pysam\n"""
     print er
@@ -44,21 +44,21 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     
     # read read names
     reads = read_readNames(args.reads)
-    print "done reading read names: {}".format(args.reads)
+    print("done reading read names:",args.reads)
 
     # read bam files
     bam1 = pysam.AlignmentFile(args.bam1, 'rb')
     bam2 = pysam.AlignmentFile(args.bam2, 'rb')
 
     # index by read name
-    print "indexing file by read name: {}".format(args.bam1)
+    print("indexing file by read name:",args.bam1)
     name_indexed1 = index_by_readName(bam1)
-    print "indexing file by read name: {}".format(args.bam1)
+    print("indexing file by read name:",args.bam2)
     name_indexed2 = index_by_readName(bam2)
 
     # compare reads
     compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, args.base)
-    print "done"
+    print("done")
 
 # to read read names
 def read_readNames(file):
@@ -140,7 +140,7 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase):
                     #x = it.next()
                     #o.write("@"+name+"\n"+x.seq+"\n+\n"+x.qual+"\n")
         if counter % 100000 == 0:
-            print "parsed {} records".format(counter)
+            print("parsed",counter,"records")
 
 
 if __name__ == "__main__":
