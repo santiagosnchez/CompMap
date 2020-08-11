@@ -24,7 +24,7 @@ Stats:
 1. Alignment score ('AS')
 2. Number of mismatches ('nM')
 
-These are hard-coded and based on STAR RNA-seq BAM outputs. They can be changed directly in the code, but *probably a future version will allow you to specify the read tag for a specific stat*.
+These are hard-coded and based on STAR RNA-seq BAM outputs. They can be changed directly in the code, but ~~*probably a future version will allow you to specify the read tag for a specific stat*~~. BAM-specific \"alignment score\" and \"number of mismatches\" tags can now be specified as arguments.
 
 Next, if the alignmed for read X worked better for reference 1, then that alignment will go to `ref1.bam`. If there are no differences between read alignments (i.e. `'AS' == 100` and `'nM' == 0`, then that read is considered ambiguous and both alignments are sent to files `amb1.bam` and `amb2.bam`, respectively.
 
@@ -45,7 +45,7 @@ Run the program with the `-h` or `-help` argument to look at the different optio
     python CompMap.py -h
     usage: CompMap.py [-h] --bam1 BAM1 --bam2 BAM2 --reads READS [--base BASE]
 
-        Compares reads from one sample aligned to two different references 
+        Compares reads from one sample aligned to two different references
         and sorts out the best match for each read to two distinct bam files.
 
         This program is useful for splitting reads from mixed-read data (e.g. from hybrids).
@@ -57,6 +57,8 @@ Run the program with the `-h` or `-help` argument to look at the different optio
       --reads READS, -r READS
                             a list of reads names
       --base BASE, -b BASE  base name for your output files (recommended).
+      --AS_tag AS_TAG       provide an "alignment score" tag in your BAM file. Decault: AS
+      --NM_tag NM_TAG       provide a "number of mismatches tag" tag in your BAM file. Default: nM
 
     Examples:
     python CompMap.py -1 first.bam -2 second.bam -r read_name_list -b my_base_name
@@ -66,4 +68,3 @@ Run the program with the `-h` or `-help` argument to look at the different optio
     ABC-HG000:000:XXXXXXX:1:0010:001:110
     ABC-HG000:000:XXXXXXX:1:0010:001:130
     ABC-HG000:000:XXXXXXX:1:0010:001:110
-
