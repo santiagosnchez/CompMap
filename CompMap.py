@@ -63,7 +63,7 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     name_indexed2 = index_by_readName(bam2)
 
     # compare reads
-    compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, args.base)
+    compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, args.base, args.AS_tag, args.NM_tag)
     print("done")
 
 # to read read names
@@ -79,7 +79,7 @@ def index_by_readName(bam):
     return name_indexed
 
 # function to compare reads
-def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase):
+def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_tag, nm_tag):
     # copy header
     header1 = bam1.header.copy()
     header2 = bam2.header.copy()
@@ -118,12 +118,12 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase):
                 mismatches2 = 0
                 for x in name_indexed1.find(name):
                     if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
-                        score1 = x.get_tag(args.AS_tag)
-                        mismatches1 = x.get_tag(args.NM_tag)
+                        score1 = x.get_tag(as_tag)
+                        mismatches1 = x.get_tag(nm_tag)
                 for x in name_indexed2.find(name):
                     if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
-                        score2 = x.get_tag(args.AS_tag)
-                        mismatches2 = x.get_tag(args.NM_tag)
+                        score2 = x.get_tag(as_tag)
+                        mismatches2 = x.get_tag(nm_tag)
                 if score1 > score2:
                     for x in name_indexed1.find(name):
                         out1.write(x)
