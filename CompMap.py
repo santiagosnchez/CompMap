@@ -14,7 +14,7 @@ def main():
     parser = argparse.ArgumentParser(prog="CompMap.py",
     formatter_class=argparse.RawTextHelpFormatter,
     description="""
-    Compares reads from one sample aligned to two different references 
+    Compares reads from one sample aligned to two different references
     and sorts out the best match for each read to two distinct bam files.
 
     This program is useful for splitting reads from mixed-read data (e.g. from hybrids).\n""",
@@ -40,8 +40,14 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     parser.add_argument(
     '--base', '-b', type=str, default="out",
     help='base name for your output files (recommended).')
+    parser.add_argument(
+    '--AS_tag', type=str, default="AS",
+    help='provide an \"alignment score\" tag in your BAM file. Decault: AS')
+    parser.add_argument(
+    '--NM_tag', type=str, default="nM",
+    help='provide a \"number of mismatches tag\" tag in your BAM file. Default: nM')
     args = parser.parse_args()
-    
+
     # read read names
     reads = read_readNames(args.reads)
     print("done reading read names:",args.reads)
@@ -112,12 +118,12 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase):
                 mismatches2 = 0
                 for x in name_indexed1.find(name):
                     if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
-                        score1 = x.get_tag('AS')
-                        mismatches1 = x.get_tag('nM')
+                        score1 = x.get_tag(args.AS_tag)
+                        mismatches1 = x.get_tag(args.NM_tag)
                 for x in name_indexed2.find(name):
                     if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
-                        score2 = x.get_tag('AS')
-                        mismatches2 = x.get_tag('nM')
+                        score2 = x.get_tag(args.AS_tag)
+                        mismatches2 = x.get_tag(args.NM_tag)
                 if score1 > score2:
                     for x in name_indexed1.find(name):
                         out1.write(x)
@@ -145,6 +151,3 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase):
 
 if __name__ == "__main__":
     main()
-
-
-
