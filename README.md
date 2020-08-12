@@ -44,6 +44,7 @@ Run the program with the `-h` or `-help` argument to look at the different optio
 
     python CompMap.py -h
     usage: CompMap.py [-h] --bam1 BAM1 --bam2 BAM2 --reads READS [--base BASE]
+                      [--AS_tag AS_TAG] [--NM_tag NM_TAG]
 
         Compares reads from one sample aligned to two different references
         and sorts out the best match for each read to two distinct bam files.
