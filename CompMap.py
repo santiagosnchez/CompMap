@@ -63,13 +63,13 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     name_indexed2 = index_by_readName(bam2)
 
     # compare reads
-    compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, args.base, args.AS_tag, args.NM_tag)
+    comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, args.base, args.AS_tag, args.NM_tag)
     print("done")
 
 # to read read names
 def read_readNames(file):
     with open(file, "r") as f:
-        reads = f.readlines()
+        reads = f.read().splitlines()
     return reads
 
 # index bam by read name
@@ -79,7 +79,7 @@ def index_by_readName(bam):
     return name_indexed
 
 # function to compare reads
-def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_tag, nm_tag):
+def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_tag, nm_tag):
     # copy header
     header1 = bam1.header.copy()
     header2 = bam2.header.copy()
@@ -91,7 +91,6 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_t
     counter = 0
     for name in reads:
         counter += 1
-        name = name.rstrip()
         if name[0] == "@":
             name = name[1:]
         name = name.split(" ")[0]
@@ -117,11 +116,11 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_t
                 mismatches1 = 0
                 mismatches2 = 0
                 for x in name_indexed1.find(name):
-                    if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
+                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
                         score1 = x.get_tag(as_tag)
                         mismatches1 = x.get_tag(nm_tag)
                 for x in name_indexed2.find(name):
-                    if not x.is_unmapped or not x.is_secondary or not x.is_supplemenrary:
+                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
                         score2 = x.get_tag(as_tag)
                         mismatches2 = x.get_tag(nm_tag)
                 if score1 > score2:
@@ -147,7 +146,10 @@ def compare_reads(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_t
                     #o.write("@"+name+"\n"+x.seq+"\n+\n"+x.qual+"\n")
         if counter % 100000 == 0:
             print("parsed",counter,"records")
-
+    out1.close()
+    out2.close()
+    out_amb1.close()
+    out_amb2.close()
 
 if __name__ == "__main__":
     main()
