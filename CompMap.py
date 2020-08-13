@@ -47,6 +47,13 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     '--NM_tag', type=str, default="nM",
     help='provide a \"number of mismatches tag\" tag in your BAM file. Default: nM')
     args = parser.parse_args()
+    parser.add_argument(
+    '--suffix1', '-s1', type=str, default="_1",
+    help='string suffix used to distinguish matches, mismatches, and ambiguous reads in -1. Default: 1')
+    parser.add_argument(
+    '--suffix2', '-s2', type=str, default="_2",
+    help='string suffix used to distinguish matches, mismatches, and ambiguous reads in -2. Default: 2')
+    args = parser.parse_args()
 
     # read read names
     reads = read_readNames(args.reads)
@@ -63,7 +70,7 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     name_indexed2 = index_by_readName(bam2)
 
     # compare reads
-    comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, args.base, args.AS_tag, args.NM_tag)
+    comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, args.base, args.suffix1, args.suffix2, args.AS_tag, args.NM_tag)
     print("done")
 
 # to read read names
@@ -79,15 +86,15 @@ def index_by_readName(bam):
     return name_indexed
 
 # function to compare reads
-def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, as_tag, nm_tag):
+def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, suffix2, as_tag, nm_tag):
     # copy header
     header1 = bam1.header.copy()
     header2 = bam2.header.copy()
     # output files
-    out1 = pysam.Samfile(outbase+"_matched1.bam", 'wb', header=header1)
-    out2 = pysam.Samfile(outbase+"_matched2.bam", 'wb', header=header2)
-    out_amb1 = pysam.Samfile(outbase+"_ambiguous1.bam", 'wb', header=header1)
-    out_amb2 = pysam.Samfile(outbase+"_ambiguous2.bam", 'wb', header=header2)
+    out1 = pysam.Samfile(outbase+"_"+suffix1+".bam", 'wb', header=header1)
+    out2 = pysam.Samfile(outbase+"_"+suffix2+".bam", 'wb', header=header2)
+    out_amb1 = pysam.Samfile(outbase+"_amb_"+suffix1+".bam", 'wb', header=header1)
+    out_amb2 = pysam.Samfile(outbase+"_amb_"+suffix2+".bam", 'wb', header=header2)
     counter = 0
     for name in reads:
         counter += 1
