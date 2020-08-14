@@ -87,7 +87,7 @@ def index_by_readName(bam):
 # function to compare reads
 def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, suffix2, as_tag, nm_tag):
     # count alignments
-    def counter(aln):
+    def count_aln(aln):
         c = 0
         for a in aln:
             c += 1
@@ -139,7 +139,7 @@ def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, 
             except KeyError:
                 pass
             else:
-                if counter(x) == 1:
+                if count_aln(x) == 1:
                     x = next(x)
                     if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
                         write_aln(x, out2, 'M')
@@ -147,14 +147,14 @@ def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, 
             try:
                 x = name_indexed2.find(name)
             except KeyError:
-                if counter(x) == 1:
+                if count_aln(x) == 1:
                     x = next(x)
                     if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
                         write_aln(x, out1, 'M')
             else:
                 # count alignments for each read
-                unique_matches1 = counter(name_indexed1.find(name))
-                unique_matches2 = counter(name_indexed2.find(name))
+                unique_matches1 = count_aln(name_indexed1.find(name))
+                unique_matches2 = count_aln(name_indexed2.find(name))
                 # check if alignments are unique
                 if unique_matches1 == 1 and unique_matches2 == 1:
                     x1 = next(name_indexed1.find(name))
