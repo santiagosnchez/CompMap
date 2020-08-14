@@ -46,7 +46,6 @@ ABC-HG000:000:XXXXXXX:1:0010:001:110
     parser.add_argument(
     '--NM_tag', type=str, default="nM",
     help='provide a \"number of mismatches tag\" tag in your BAM file. Default: nM')
-    args = parser.parse_args()
     parser.add_argument(
     '--suffix1', '-s1', type=str, default="_1",
     help='string suffix used to distinguish matches, mismatches, and ambiguous reads in -1. Default: 1')
