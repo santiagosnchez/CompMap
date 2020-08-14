@@ -20,7 +20,7 @@ def main():
     This program is useful for splitting reads from mixed-read data (e.g. from hybrids).\n""",
     epilog="""
 Examples:
-python CompMap.py -1 first.bam -2 second.bam -r read_name_list -b my_base_name
+python CompMap.py -1 first.bam -2 second.bam -r read_name_list -b my_base_name -s1 sp1 -s2 sp2
 
 Example for read list:
 ABC-HG000:000:XXXXXXX:1:0010:001:100
