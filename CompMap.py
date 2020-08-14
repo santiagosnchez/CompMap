@@ -178,8 +178,6 @@ def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, 
             print("parsed "+str(counter)+" records")
     out1.close()
     out2.close()
-    out_amb1.close()
-    out_amb2.close()
 
 if __name__ == "__main__":
     main()
