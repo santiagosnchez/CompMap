@@ -87,14 +87,45 @@ def index_by_readName(bam):
 
 # function to compare reads
 def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, suffix2, as_tag, nm_tag):
+    # count alignments
+    def counter(aln):
+        c = 0
+        for a in aln:
+            c += 1
+        return c
+
+    # return score and mismatches
+    def get_as_nm(x, as_tag, nm_tag):
+        return x.get_tag(as_tag), x.get_tag(nm_tag)
+
+    def write_aln(x, out, tag):
+        x.tags += [('CM',tag)]
+        out.write(x)
+
+    def compare_and_write(x1, x2, as_tag, nm_tag, out1, out2):
+        score1, mismatches1 = get_as_nm(x1, as_tag, nm_tag)
+        score2, mismatches2 = get_as_nm(x2, as_tag, nm_tag)
+        if score1 > score2:
+            write_aln(x1, out1, 'M')
+        elif score1 < score2:
+            write_aln(x2, out2, 'M')
+        else:
+            if mismatches1 < mismatches2:
+                write_aln(x1, out1, 'M')
+            elif mismatches1 > mismatches2:
+                write_aln(x2, out2, 'M')
+            else:
+                write_aln(x1, out1, 'A')
+                write_aln(x2, out2, 'A')
+
     # copy header
     header1 = bam1.header.copy()
     header2 = bam2.header.copy()
     # output files
     out1 = pysam.Samfile(outbase+"_"+suffix1+".bam", 'wb', header=header1)
     out2 = pysam.Samfile(outbase+"_"+suffix2+".bam", 'wb', header=header2)
-    out_amb1 = pysam.Samfile(outbase+"_amb_"+suffix1+".bam", 'wb', header=header1)
-    out_amb2 = pysam.Samfile(outbase+"_amb_"+suffix2+".bam", 'wb', header=header2)
+    #out_amb1 = pysam.Samfile(outbase+"_amb_"+suffix1+".bam", 'wb', header=header1)
+    #out_amb2 = pysam.Samfile(outbase+"_amb_"+suffix2+".bam", 'wb', header=header2)
     counter = 0
     for name in reads:
         counter += 1
@@ -102,57 +133,50 @@ def comp_map(bam1, bam2, name_indexed1, name_indexed2, reads, outbase, suffix1, 
             name = name[1:]
         name = name.split(" ")[0]
         try:
-            name_indexed1.find(name)
+            x = name_indexed1.find(name)
         except KeyError:
             try:
-                name_indexed2.find(name)
+                x = name_indexed2.find(name)
             except KeyError:
                 pass
             else:
-                for x in name_indexed2.find(name):
-                    out2.write(x)
+                if counter(x) == 1:
+                    x = next(x)
+                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
+                        write_aln(x, out2, 'M')
         else:
             try:
-                name_indexed2.find(name)
+                x = name_indexed2.find(name)
             except KeyError:
-                for x in name_indexed1.find(name):
-                    out1.write(x)
+                if counter(x) == 1:
+                    x = next(x)
+                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
+                        write_aln(x, out1, 'M')
             else:
-                score1 = 0
-                score2 = 0
-                mismatches1 = 0
-                mismatches2 = 0
-                for x in name_indexed1.find(name):
-                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
-                        score1 = x.get_tag(as_tag)
-                        mismatches1 = x.get_tag(nm_tag)
-                for x in name_indexed2.find(name):
-                    if not any([x.is_unmapped, x.is_secondary, x.is_supplementary]):
-                        score2 = x.get_tag(as_tag)
-                        mismatches2 = x.get_tag(nm_tag)
-                if score1 > score2:
-                    for x in name_indexed1.find(name):
-                        out1.write(x)
-                elif score2 > score1:
-                    for x in name_indexed2.find(name):
-                        out2.write(x)
-                else:
-                    if mismatches1 < mismatches2:
-                        for x in name_indexed1.find(name):
-                            out1.write(x)
-                    if mismatches1 > mismatches2:
-                        for x in name_indexed2.find(name):
-                            out2.write(x)
-                    else:
-                        for x in name_indexed1.find(name):
-                            out_amb1.write(x)
-                        for x in name_indexed2.find(name):
-                            out_amb2.write(x)
-                    #it = name_indexed1.find(name)
-                    #x = it.next()
-                    #o.write("@"+name+"\n"+x.seq+"\n+\n"+x.qual+"\n")
+                # count alignments for each read
+                unique_matches1 = counter(name_indexed1.find(name))
+                unique_matches2 = counter(name_indexed2.find(name))
+                # check if alignments are unique
+                if unique_matches1 == 1 and unique_matches2 == 1:
+                    x1 = next(name_indexed1.find(name))
+                    x2 = next(name_indexed2.find(name))
+                    # test if reads are mapped
+                    if not any([x1.is_unmapped, x1.is_secondary, x1.is_supplementary]) and not any([x2.is_unmapped, x2.is_secondary, x2.is_supplementary]):
+                        compare_and_write(x1, x2, as_tag, nm_tag, out1, out2)
+                    elif not any([x1.is_unmapped, x1.is_secondary, x1.is_supplementary]) and any([x2.is_unmapped, x2.is_secondary, x2.is_supplementary]):
+                        write_aln(x1, out1, 'M')
+                    elif any([x1.is_unmapped, x1.is_secondary, x1.is_supplementary]) and not any([x2.is_unmapped, x2.is_secondary, x2.is_supplementary]):
+                        write_aln(x2, out2, 'M')
+                elif unique_matches1 == 1 and unique_matches2 > 1:
+                    x1 = next(name_indexed1.find(name))
+                    if not any([x1.is_unmapped, x1.is_secondary, x1.is_supplementary]):
+                        write_aln(x1, out1, 'M')
+                elif unique_matches1 > 1 and unique_matches2 == 1:
+                    x2 = next(name_indexed2.find(name))
+                    if not any([x2.is_unmapped, x2.is_secondary, x2.is_supplementary]):
+                        write_aln(x2, out2, 'M')
         if counter % 100000 == 0:
-            print("parsed",counter,"records")
+            print("parsed "+str(counter)+" records")
     out1.close()
     out2.close()
     out_amb1.close()
