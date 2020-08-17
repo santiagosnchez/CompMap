@@ -1,10 +1,12 @@
 # CompMap
-Compares reads mapped to two references and splits best alignments into different BAM files
+Compares reads mapped to two references and counts reads for allele-specific expression
 
 ## Dependencies
 
 1. Python 3.x
 2. [pysam](https://pysam.readthedocs.io/en/latest/api.html)
+3. art
+4. time
 
 The program requires `pysam` to be installed. To do that just run `pip`:
 
@@ -13,6 +15,10 @@ The program requires `pysam` to be installed. To do that just run `pip`:
 To install locally:
 
     pip install --user pysam
+
+Other dependencies can be installed in the same way:
+
+    pip install art time
 
 ## Workflow and rationale
 
