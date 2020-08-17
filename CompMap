@@ -2,7 +2,6 @@
 
 import sys
 import argparse
-#import itertools
 import art
 import time
 try:
