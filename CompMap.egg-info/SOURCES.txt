@@ -4,4 +4,5 @@ setup.py
 CompMap.egg-info/PKG-INFO
 CompMap.egg-info/SOURCES.txt
 CompMap.egg-info/dependency_links.txt
+CompMap.egg-info/requires.txt
 CompMap.egg-info/top_level.txt

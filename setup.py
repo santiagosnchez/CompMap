@@ -19,4 +19,9 @@ setuptools.setup(
          "License :: GPL3 License",
          "Operating System :: OS Independent",
      ],
+     python_requires='>=3.6',
+     install_requires=[
+          'pysam',
+          'art'
+      ],
  )
