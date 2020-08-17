@@ -35,16 +35,16 @@ chr3\t150\t1000\tgene4
     \n""")
     parser.add_argument(
     '--bam1', '-1', type=str, required=True,
-    help='first bam file.')
+    help='1st bam file. Preferentially sorted and indexed.')
     parser.add_argument(
     '--bam2', '-2', type=str, required=True,
-    help='second bam file.')
+    help='2nd bam file. Preferentially sorted and indexed.')
     parser.add_argument(
     '--bed1', '-b1', type=str, required=True,
-    help='first bam file.')
+    help='first bed file. The 4th column is expected to be the gene id alone and must be the same as in bed2.')
     parser.add_argument(
     '--bed2', '-b2', type=str, required=True,
-    help='second bam file.')
+    help='second bed file. The 4th column is expected to be the gene id alone and must be the same as in bed1.')
     parser.add_argument(
     '--base', '-b', type=str, default="out",
     help='base name for your output files (recommended).')
@@ -84,7 +84,7 @@ chr3\t150\t1000\tgene4
     bed1 = read_bed(args.bed1)
     bed2 = read_bed(args.bed2)
 
-    # compare reads
+    # compare read counts, main function
     comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, args.AS_tag, args.NM_tag)
 
 # function to compare reads
