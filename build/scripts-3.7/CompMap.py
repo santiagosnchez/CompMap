@@ -1,4 +1,4 @@
-#!/usr/bin/python env
+#!python env
 import sys
 import argparse
 #import itertools
