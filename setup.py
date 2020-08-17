@@ -4,9 +4,9 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-     name='CompMap',  
+     name='CompMap',
      version='1.0',
-     scripts=['CompMap.py'] ,
+     scripts=['CompMap'] ,
      author="Santiago Sanchez-Ramirez",
      author_email="santiago.snchez@gmail.com",
      description="Competitive read-mapping for allele-specific expression read-counting",
