@@ -230,6 +230,7 @@ def make_progress_bar(rec, total, t1, width):
     else:
         asterix = "*" * width
         dashes = ""
+        i = 100
     t2 = time.time()
     elapsed = t2-t1
     return "|"+asterix+dashes+"| "+"%5.2f%% %7.2f s", i, elapsed
