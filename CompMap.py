@@ -129,17 +129,6 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     o.close()
     print("done")
 
-# index bam by read name
-def index_by_readName(bam):
-    name_indexed = pysam.IndexedReads(bam)
-    name_indexed.build()
-    return name_indexed
-
-def read_bed(file):
-    with open(file, "r") as f:
-        bed = [ x.split("\t") for x in f.read().splitlines() ]
-    return bed
-
 def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag):
     # check unique alignment
     def check_unique(read_name, bam_ni):
@@ -166,30 +155,40 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag):
         score, mismatches = get_as_nm(x, as_tag, nm_tag)
         score_alt, mismatches_alt = get_as_nm(x_alt, as_tag, nm_tag)
         if score > score_alt:
-            return True
+            return 'M'
         elif mismatches < mismatches_alt:
-            return True
+            return 'M'
         else:
-            return False
+            if score == score_alt:
+                return 'A'
+            elif mismatches == mismatches_alt:
+                return 'A'
     #
-    count_all = 0; count_bmt = 0
+    count_bmt = 0; count_amb = 0
     for r in bam.fetch(bedline[0], int(bedline[1]), int(bedline[2])):
         if not any([r.is_unmapped, r.is_secondary, r.is_supplementary]) and check_unique(r.qname, bam_ni):
-            count_all += 1
             if check_is_found(r.qname, bam_ni_alt) and check_unique(r.qname, bam_ni_alt):
                 r_alt = next(bam_ni_alt.find(r.qname))
                 if not any([r_alt.is_unmapped, r_alt.is_secondary, r_alt.is_supplementary]):
-                    if compare_reads(r, r_alt, as_tag, nm_tag):
+                    cr = compare_reads(r, r_alt, as_tag, nm_tag)
+                    if cr == 'M':
                         count_bmt += 1
+                    elif cr == 'A':
+                        count_amb += 1
                 else:
                     count_bmt += 1
             else:
                 count_bmt += 1
-    return count_all, count_bmt
+    count_all = count_bmt + count_amb
+    return count_all, count_bmt, count_amb
 
 def correct_counts(counts1, counts2):
     if counts1[0] == counts1[1] and counts2[0] == counts2[1]:
         return counts1[0], counts2[0]
+    elif counts1[0] == counts1[1] and counts2[0] > counts2[1]:
+        return counts1[0], counts2[0]+counts2[1]
+    elif counts1[0] > counts1[1] and counts2[0] == counts2[1]:
+        return counts1[0]+counts1[1], counts2[0]
     else:
         if counts1[1] < counts2[1]:
             prop = counts1[1]/counts2[1]
@@ -205,6 +204,17 @@ def correct_counts(counts1, counts2):
             corrected1 = counts1[1] + ((counts1[0]-counts1[1]) * .5)
             corrected2 = counts2[1] + ((counts2[0]-counts2[1]) * .5)
             return int(corrected1), int(corrected2)
+
+# index bam by read name
+def index_by_readName(bam):
+    name_indexed = pysam.IndexedReads(bam)
+    name_indexed.build()
+    return name_indexed
+
+def read_bed(file):
+    with open(file, "r") as f:
+        bed = [ x.split("\t") for x in f.read().splitlines() ]
+    return bed
 
 if __name__ == "__main__":
     main()
