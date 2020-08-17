@@ -1,4 +1,4 @@
-CompMap.py
+CompMap
 README.md
 setup.py
 CompMap.egg-info/PKG-INFO
