@@ -5,8 +5,7 @@ Compares reads mapped to two references and counts reads for allele-specific exp
 
 1. Python 3.x
 2. [pysam](https://pysam.readthedocs.io/en/latest/api.html)
-3. art
-4. time
+3. art (for pretty ASCII art)
 
 ## Installation
 
