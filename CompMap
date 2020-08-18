@@ -54,6 +54,9 @@ chr3\t150\t1000\tgene4
     '--NM_tag', type=str, default="nM",
     help='provide a \"number of mismatches tag\" tag in your BAM file. Default: nM')
     parser.add_argument(
+    '--star', action="store_true", default=False,
+    help='use the NH tag to filter out multi-mapping reads.')
+    parser.add_argument(
     '--suffix1', '-s1', type=str, default="_1",
     help='string suffix used to distinguish matches, mismatches, and ambiguous reads in -1. Default: 1')
     parser.add_argument(
@@ -113,6 +116,9 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     o = open(out[0]+"_counts.txt", "w")
     o.write("gene_id\t"+out[0]+"_"+out[1]+"\t"+out[0]+"_"+out[2]+"\n")
 
+    # define unique mapping function
+    check_unique = unique_mapping_func(args.star)
+
     # loop through bedfiles
     t1 = time.time()
     for geneid in bed1_gn:
@@ -120,8 +126,8 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         bedline1 = bed1[geneid]
         bedline2 = bed2[geneid]
         # count reads
-        counts1 = cm_count_reads(bedline1, bam1, name_indexed1, bam2, name_indexed2, as_tag, nm_tag)
-        counts2 = cm_count_reads(bedline2, bam2, name_indexed2, bam1, name_indexed1, as_tag, nm_tag)
+        counts1 = cm_count_reads(bedline1, bam1, name_indexed1, bam2, name_indexed2, as_tag, nm_tag, check_unique)
+        counts2 = cm_count_reads(bedline2, bam2, name_indexed2, bam1, name_indexed1, as_tag, nm_tag, check_unique)
         # correct counts
         corr1, corr2 = correct_counts(counts1, counts2)
         o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")
@@ -135,16 +141,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     print("\nDone processing "+str(feature_counter)+" features.")
     print(art.text2art("Finished."))
 
-def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag):
-    # check unique alignment
-    def check_unique(read_name, bam_ni):
-        c = 0
-        for r in bam_ni.find(read_name):
-            c += 1
-        if c > 1:
-            return False
-        else:
-            return True
+def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, check_unique):
     # check if read is present
     def check_is_found(read_name, bam_ni):
         try:
@@ -187,6 +184,27 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag):
                 count_bmt += 1
     count_all = count_bmt + count_amb
     return count_all, count_bmt, count_amb
+
+def unique_mapping_func(star):
+    # check unique alignment by read names
+    def check_unique_read(read_name, bam_ni):
+        c = 0
+        for r in bam_ni.find(read_name):
+            c += 1
+        if c > 1:
+            return False
+        else:
+            return True
+    # check multi-mapping flag in STAR bam
+    def check_unique_tag(r, tag):
+        if r.get_tag(tag) == 1:
+            return True
+        else:
+            return False
+    if star:
+        return check_unique_tag
+    else:
+        return check_unique_read
 
 def correct_counts(counts1, counts2):
     if counts1[0] == counts1[1] and counts2[0] == counts2[1]:
