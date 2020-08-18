@@ -14,8 +14,7 @@ pip install pysam\n""")
 
 def main():
     # parse arguments
-    pretty_title = art.text2art("CompMap")
-    print(pretty_title)
+    print(art.text2art("CompMap"))
     parser = argparse.ArgumentParser(prog="CompMap",
     formatter_class=argparse.RawTextHelpFormatter,
     description="""
@@ -134,6 +133,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         #     print("processed "+str(feature_counter)+" features")
     o.close()
     print("\nDone processing "+str(feature_counter)+" features.")
+    print(art.text2art("Finished."))
 
 def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag):
     # check unique alignment
