@@ -13,8 +13,7 @@ Description: # CompMap
         
         1. Python 3.x
         2. [pysam](https://pysam.readthedocs.io/en/latest/api.html)
-        3. art
-        4. time
+        3. art (for pretty ASCII art)
         
         ## Installation
         
@@ -22,7 +21,13 @@ Description: # CompMap
         
         `pip` will install all the dependencies and make a path-ready excecutable.
         
-            python -m pip install https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.0-py3-none-any.whl
+            python3 -m pip install https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.0-py3-none-any.whl
+        
+        also:
+        
+            python3 -m pip install --user https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.0.tar.gz
+        
+        works if your systems does not take `wheel` files. Use the `--user` flag if you want to install locally.
         
         ### Manual installation and download
         
