@@ -87,10 +87,10 @@ chr3\t150\t1000\tgene4
     bed2 = read_bed(args.bed2)
 
     # compare read counts, main function
-    comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, args.AS_tag, args.NM_tag)
+    comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, args.AS_tag, args.NM_tag, args.star)
 
 # function to compare reads
-def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, nm_tag):
+def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, nm_tag, star):
     # process bed files
     # check if gene ids are the same
     print("Checking gene_id names: ", end="")
@@ -117,7 +117,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     o.write("gene_id\t"+out[0]+"_"+out[1]+"\t"+out[0]+"_"+out[2]+"\n")
 
     # define unique mapping function
-    check_unique = unique_mapping_func(args.star)
+    check_unique = unique_mapping_func(star)
 
     # loop through bedfiles
     t1 = time.time()
