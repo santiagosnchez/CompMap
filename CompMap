@@ -72,9 +72,11 @@ chr3\t150\t1000\tgene4
     if not bam1.has_index():
         print("Index for "+args.bam1+" not found. Indexing...")
         pysam.index(args.bam1)
+        bam1 = pysam.AlignmentFile(args.bam1, 'rb')
     if not bam2.has_index():
         print("Index for "+args.bam2+" not found. Indexing...")
         pysam.index(args.bam2)
+        bam2 = pysam.AlignmentFile(args.bam2, 'rb')
 
     # index by read name
     print("Indexing file by read name:",args.bam1)
