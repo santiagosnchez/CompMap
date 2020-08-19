@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: CompMap
-Version: 1.0
+Version: 1.0b717533
 Summary: Competitive read-mapping for allele-specific expression read-counting
 Home-page: https://github.com/santiagosnchez/CompMap
 Author: Santiago Sanchez-Ramirez
