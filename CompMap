@@ -4,6 +4,7 @@ import sys
 import argparse
 import art
 import time
+import itertools
 try:
     import pysam
 except ImportError as er:
@@ -79,14 +80,13 @@ chr3\t150\t1000\tgene4
         bam2 = pysam.AlignmentFile(args.bam2, 'rb')
 
     # index by read name
-    print("Indexing file by read name:",args.bam1)
+    print("Indexing BAMs by read name")
     name_indexed1 = index_by_readName(bam1)
-    print("Indexing file by read name:",args.bam2)
     name_indexed2 = index_by_readName(bam2)
 
     # copy header
-    header1 = bam1.header.copy()
-    header2 = bam2.header.copy()
+    #header1 = bam1.header.copy()
+    #header2 = bam2.header.copy()
     # output files
     out = (args.base,args.suffix1,args.suffix2)
 
@@ -175,22 +175,35 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
                 return 'A'
             elif mismatches == mismatches_alt:
                 return 'A'
-    #
-    count_bmt = 0; count_amb = 0
-    for r in bam.fetch(bedline[0], int(bedline[1]), int(bedline[2])):
+    # count reads function
+    def count_reads(r, as_tag, nm_tag, bam_ni, bam_ni_alt):
         if not any([r.is_unmapped, r.is_secondary, r.is_supplementary]) and check_unique(r, r.qname, bam_ni):
             if check_is_found(r.qname, bam_ni_alt) and check_unique(r, r.qname, bam_ni):
                 r_alt = next(bam_ni_alt.find(r.qname))
                 if not any([r_alt.is_unmapped, r_alt.is_secondary, r_alt.is_supplementary]):
                     cr = compare_reads(r, r_alt, as_tag, nm_tag)
                     if cr == 'M':
-                        count_bmt += 1
+                        yield 1
                     elif cr == 'A':
-                        count_amb += 1
+                        yield 2
                 else:
-                    count_bmt += 1
+                    yield 1
             else:
-                count_bmt += 1
+                yield 1
+    #
+    overlaps = bam.fetch(bedline[0], int(bedline[1]), int(bedline[2]))
+    it_as_tag = ( as_tag for x in overlaps)
+    it_nm_tag = ( nm_tag for x in overlaps)
+    it_bam_ni = ( bam_ni for x in overlaps)
+    it_bam_ni_alt = ( bam_ni_alt for x in overlaps)
+    args = zip(overlaps, it_as_tag, it_nm_tag, it_bam_ni, it_bam_ni_alt)
+    counts = itertools.starmap(count_reads, args)
+    count_bmt = 0; count_amb = 0
+    for it in counts:
+        if it == 1:
+            count_bmt += 1
+        else:
+            count_amb += 1
     count_all = count_bmt + count_amb
     return count_all, count_bmt, count_amb
 
