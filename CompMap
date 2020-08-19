@@ -178,8 +178,8 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
     #
     count_bmt = 0; count_amb = 0
     for r in bam.fetch(bedline[0], int(bedline[1]), int(bedline[2])):
-        if not any([r.is_unmapped, r.is_secondary, r.is_supplementary]) and check_unique(r.qname, bam_ni):
-            if check_is_found(r.qname, bam_ni_alt) and check_unique(r.qname, bam_ni_alt):
+        if not any([r.is_unmapped, r.is_secondary, r.is_supplementary]) and check_unique(r, r.qname, bam_ni):
+            if check_is_found(r.qname, bam_ni_alt) and check_unique(r, r.qname, bam_ni):
                 r_alt = next(bam_ni_alt.find(r.qname))
                 if not any([r_alt.is_unmapped, r_alt.is_secondary, r_alt.is_supplementary]):
                     cr = compare_reads(r, r_alt, as_tag, nm_tag)
@@ -196,7 +196,7 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
 
 def unique_mapping_func(star):
     # check unique alignment by read names
-    def check_unique_read(read_name, bam_ni):
+    def check_unique_read(r, read_name, bam_ni):
         c = 0
         for r in bam_ni.find(read_name):
             c += 1
@@ -205,8 +205,8 @@ def unique_mapping_func(star):
         else:
             return True
     # check multi-mapping flag in STAR bam
-    def check_unique_tag(r, tag):
-        if r.get_tag(tag) == 1:
+    def check_unique_tag(r, read_name, bam_ni):
+        if r.get_tag('NH') == 1:
             return True
         else:
             return False
