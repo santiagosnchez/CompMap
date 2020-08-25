@@ -265,15 +265,15 @@ def read_bed(file):
 def make_progress_bar(rec, total, t1, width):
     i = (rec/total * 100) % 100
     if i != 0:
-        asterix = "*" * int(i * (width/100))
-        dashes = "-" * (width-int(i * width/100))
+        plus = "+" * int(i * (width/100))
+        dots = "." * (width-int(i * width/100))
     else:
-        asterix = "*" * width
-        dashes = ""
+        plus = "+" * width
+        dots = ""
         i = 100
     t2 = time.time()
     elapsed = t2-t1
-    return "|"+asterix+dashes+"| "+"%5.2f%% %7.2f s", i, elapsed
+    return "["+asterix+dashes+"] "+"%5.2f%% %7.2f s", i, elapsed
 
 if __name__ == "__main__":
     main()
