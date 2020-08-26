@@ -139,11 +139,11 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         counts2 = cm_count_reads(bedline2, bam2, name_indexed2, bam1, name_indexed1, as_tag, nm_tag, check_unique)
         # correct counts
         corr1, corr2 = correct_counts(counts1, counts2)
-        o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")
+        #o.write(geneid+"\t"+str(corr1)+"\t"+"\t".join([ str(i) for i in counts1 ])+"\t"+str(corr2)+"\t"+"\t".join([ str(i) for i in counts2 ])+"\n")
 
         # print progress bar
-        progress = make_progress_bar(feature_counter, total_features, t1, 70)
-        print("\r", progress[0] % progress[1:], end='', flush=True)
+        #progress = make_progress_bar(feature_counter, total_features, t1, 70)
+        #print("\r", progress[0] % progress[1:], end='', flush=True)
         # if feature_counter % 100 == 0:
         #     print("processed "+str(feature_counter)+" features")
     o.close()
@@ -151,6 +151,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     print(art.text2art("Finished."))
 
 def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, check_unique):
+    tm = time.time()
     # check if read is present
     def check_is_found(read_name, bam_ni):
         try:
@@ -190,21 +191,36 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
                     yield 1
             else:
                 yield 1
+    print(time.time()-tm, " loading functions")
+    tm = time.time()
     #
+    # count total reads in interval
+    reads = 0
+    for i in bam.fetch(bedline[0], int(bedline[1]), int(bedline[2])): reads += 1
+    it_as_tag = ( as_tag for x in range(reads) )
+    it_nm_tag = ( nm_tag for x in range(reads) )
+    it_bam_ni = ( bam_ni for x in range(reads) )
+    it_bam_ni_alt = ( bam_ni_alt for x in range(reads) )
     overlaps = bam.fetch(bedline[0], int(bedline[1]), int(bedline[2]))
-    it_as_tag = ( as_tag for x in overlaps)
-    it_nm_tag = ( nm_tag for x in overlaps)
-    it_bam_ni = ( bam_ni for x in overlaps)
-    it_bam_ni_alt = ( bam_ni_alt for x in overlaps)
+    # consolidate/zip all arguments
     args = zip(overlaps, it_as_tag, it_nm_tag, it_bam_ni, it_bam_ni_alt)
-    counts = itertools.starmap(count_reads, args)
+    print(time.time()-tm, " preping args")
+    tm = time.time()
+    # count reads using iterator function
     count_bmt = 0; count_amb = 0
-    for it in counts:
-        if it == 1:
-            count_bmt += 1
+    for i in itertools.starmap(count_reads, args):
+        try:
+            count = next(i)
+        except StopIteration:
+            pass
         else:
-            count_amb += 1
+            if count == 1:
+                count_bmt += 1
+            else:
+                count_amb += 1
+    print(time.time()-tm, " running and counting iterator")
     count_all = count_bmt + count_amb
+    print(count_all, count_bmt, count_amb)
     return count_all, count_bmt, count_amb
 
 def unique_mapping_func(star):
@@ -273,7 +289,7 @@ def make_progress_bar(rec, total, t1, width):
         i = 100
     t2 = time.time()
     elapsed = t2-t1
-    return "["+asterix+dashes+"] "+"%5.2f%% %7.2f s", i, elapsed
+    return "["+plus+dots+"] "+"%5.2f%% %7.2f s", i, elapsed
 
 if __name__ == "__main__":
     main()
