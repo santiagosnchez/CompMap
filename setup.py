@@ -27,6 +27,5 @@ setuptools.setup(
           'pysam',
           'art',
           'numpy',
-          'itertools'
       ],
  )
