@@ -1,2 +1,4 @@
 pysam
 art
+numpy
+itertools
