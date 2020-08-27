@@ -4,8 +4,9 @@ import sys
 import argparse
 import art
 import time
-import itertools
+#import itertools
 import numpy as np
+#import multiprocessing as mp
 try:
     import pysam
 except ImportError as er:
@@ -152,6 +153,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         bedline1 = bed1[geneid]
         bedline2 = bed2[geneid]
         # count reads
+        t1 = time.time()
         counts1 = cm_count_reads(bedline1, bam1, name_indexed1, bam2, name_indexed2, as_tag, nm_tag, check_unique)
         counts2 = cm_count_reads(bedline2, bam2, name_indexed2, bam1, name_indexed1, as_tag, nm_tag, check_unique)
         # correct counts
@@ -160,9 +162,10 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
             o.write(geneid+"\t"+str(corr1)+"\t"+"\t".join([ str(i) for i in counts1 ])+"\t"+str(corr2)+"\t"+"\t".join([ str(i) for i in counts2 ])+"\n")
         else:
             o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")
+        print(time.time()-t1, "elapsed")
         # print progress bar
-        progress = make_progress_bar(feature_counter, total_features, t1, 70)
-        print("\r", progress[0] % progress[1:], end='', flush=True)
+        #progress = make_progress_bar(feature_counter, total_features, t1, 70)
+        #print("\r", progress[0] % progress[1:], end='', flush=True)
     o.close()
     print("\nDone processing "+str(feature_counter)+" features.")
     print(art.text2art("Finished."))
@@ -184,51 +187,50 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
         score, mismatches = get_as_nm(x, as_tag, nm_tag)
         score_alt, mismatches_alt = get_as_nm(x_alt, as_tag, nm_tag)
         if score > score_alt:
-            yield 'M'
+            return 'M'
         elif mismatches < mismatches_alt:
-            yield 'M'
+            return 'M'
         else:
             if score == score_alt:
-                yield 'A'
+                return 'A'
             elif mismatches == mismatches_alt:
-                yield 'A'
+                return 'A'
             else:
-                yield 'R'
+                return 'R'
     # count reads function
     def count_reads(r, as_tag, nm_tag, bam_ni, bam_ni_alt, counter):
+        #b1 = time.time()
         if not any([r.is_unmapped, r.is_secondary, r.is_supplementary]) and check_unique(r, r.qname, bam_ni):
+            #b2 = time.time()
             if check_is_found(r.qname, bam_ni_alt) and check_unique(r, r.qname, bam_ni):
+                #b3 = time.time()
                 r_alt = next(bam_ni_alt.find(r.qname))
                 if not any([r_alt.is_unmapped, r_alt.is_secondary, r_alt.is_supplementary]):
-                    counter[next(compare_reads(r, r_alt, as_tag, nm_tag))] += 1
-                    yield counter
+                    counter[compare_reads(r, r_alt, as_tag, nm_tag)] += 1
                 else:
                     counter['M'] += 1
-                    yield counter
+                #print(time.time()-b3, "block 3")
             else:
                 counter['M'] += 1
-                yield counter
-        else:
-            yield counter
+            #print(time.time()-b2, "block 2")
+        #print(time.time()-b1, "block 1")
+        yield counter
     #
-    # count total reads in interval
-    reads = 0
-    for i in bam.fetch(bedline[0], int(bedline[1]), int(bedline[2])): reads += 1
+
+    # start read counter
     counter = {'M':0, 'A':0, 'R':0}
-    it_counter = ( counter for x in range(reads) )
-    it_as_tag = ( as_tag for x in range(reads) )
-    it_nm_tag = ( nm_tag for x in range(reads) )
-    it_bam_ni = ( bam_ni for x in range(reads) )
-    it_bam_ni_alt = ( bam_ni_alt for x in range(reads) )
+
+    # loop through reads in interval
     overlaps = bam.fetch(bedline[0], int(bedline[1]), int(bedline[2]))
-    # consolidate/zip all arguments
-    args = zip(overlaps, it_as_tag, it_nm_tag, it_bam_ni, it_bam_ni_alt, it_counter)
+    t1 = time.time()
+    for r in overlaps:
+        counter = next(count_reads(r, as_tag, nm_tag, bam_ni, bam_ni_alt, counter))
 
-    # count reads using iterator function
-    for i in itertools.starmap(count_reads, args): count = next(i)
-
-    count_all = count['M'] + count['A']
-    return count_all, count['M'], count['A']
+    print(time.time()-t1, "just the counts")
+    # get total
+    count_all = counter['M'] + counter['A']
+    print(count_all, counter['M'], counter['A'])
+    return count_all, counter['M'], counter['A']
 
 def unique_mapping_func(star):
     # check unique alignment by read names
