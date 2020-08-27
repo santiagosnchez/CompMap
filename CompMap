@@ -148,6 +148,8 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
 
     # loop through bedfiles
     t1 = time.time()
+    progress = make_progress_bar(1, total_features, t1, 70)
+    print("\r", progress[0] % progress[1:], end='', flush=True)
     for geneid in bed1_gn:
         feature_counter += 1
         bedline1 = bed1[geneid]
