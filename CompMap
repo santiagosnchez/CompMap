@@ -153,7 +153,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         bedline1 = bed1[geneid]
         bedline2 = bed2[geneid]
         # count reads
-        t1 = time.time()
+        # for benchmarking: t1 = time.time()
         counts1 = cm_count_reads(bedline1, bam1, name_indexed1, bam2, name_indexed2, as_tag, nm_tag, check_unique)
         counts2 = cm_count_reads(bedline2, bam2, name_indexed2, bam1, name_indexed1, as_tag, nm_tag, check_unique)
         # correct counts
@@ -162,10 +162,10 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
             o.write(geneid+"\t"+str(corr1)+"\t"+"\t".join([ str(i) for i in counts1 ])+"\t"+str(corr2)+"\t"+"\t".join([ str(i) for i in counts2 ])+"\n")
         else:
             o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")
-        print(time.time()-t1, "elapsed")
+        # for benchmarking: print(time.time()-t1, "elapsed")
         # print progress bar
-        #progress = make_progress_bar(feature_counter, total_features, t1, 70)
-        #print("\r", progress[0] % progress[1:], end='', flush=True)
+        progress = make_progress_bar(feature_counter, total_features, t1, 70)
+        print("\r", progress[0] % progress[1:], end='', flush=True)
     o.close()
     print("\nDone processing "+str(feature_counter)+" features.")
     print(art.text2art("Finished."))
@@ -222,11 +222,11 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
 
     # loop through reads in interval
     overlaps = bam.fetch(bedline[0], int(bedline[1]), int(bedline[2]))
-    t1 = time.time()
+    # for benchmarking: t1 = time.time()
     for r in overlaps:
         counter = next(count_reads(r, as_tag, nm_tag, bam_ni, bam_ni_alt, counter))
 
-    print(time.time()-t1, "just the counts")
+    # for benchmarking: print(time.time()-t1, "just the counts")
     # get total
     count_all = counter['M'] + counter['A']
     print(count_all, counter['M'], counter['A'])
