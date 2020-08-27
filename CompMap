@@ -229,7 +229,7 @@ def cm_count_reads(bedline, bam, bam_ni, bam_alt, bam_ni_alt, as_tag, nm_tag, ch
     # for benchmarking: print(time.time()-t1, "just the counts")
     # get total
     count_all = counter['M'] + counter['A']
-    print(count_all, counter['M'], counter['A'])
+    # print(count_all, counter['M'], counter['A'])
     return count_all, counter['M'], counter['A']
 
 def unique_mapping_func(star):
