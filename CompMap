@@ -159,7 +159,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         if more:
             o.write(geneid+"\t"+str(corr1)+"\t"+"\t".join([ str(i) for i in counts1 ])+"\t"+str(corr2)+"\t"+"\t".join([ str(i) for i in counts2 ])+"\n")
         else:
-            o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")        
+            o.write(geneid+"\t"+str(corr1)+"\t"+str(corr2)+"\n")
         # print progress bar
         progress = make_progress_bar(feature_counter, total_features, t1, 70)
         print("\r", progress[0] % progress[1:], end='', flush=True)
@@ -253,12 +253,8 @@ def unique_mapping_func(star):
 
 def select_corr_model(model):
     def correct_counts(counts1, counts2):
-        if counts1[0] == counts1[1] and counts2[0] == counts2[1]:
+        if counts1[0] == counts1[1] or counts2[0] == counts2[1]:
             return counts1[0], counts2[0]
-        elif counts1[0] == counts1[1] and counts2[0] > counts2[1]:
-            return counts1[0], counts2[0]+counts2[1]
-        elif counts1[0] > counts1[1] and counts2[0] == counts2[1]:
-            return counts1[0]+counts1[1], counts2[0]
         else:
             if counts1[1] < counts2[1]:
                 prop = counts1[1]/counts2[1]
@@ -276,12 +272,8 @@ def select_corr_model(model):
                 return int(corrected1), int(corrected2)
 
     def correct_counts_binom(counts1, counts2):
-        if counts1[0] == counts1[1] and counts2[0] == counts2[1]:
+        if counts1[0] == counts1[1] or counts2[0] == counts2[1]:
             return counts1[0], counts2[0]
-        elif counts1[0] == counts1[1] and counts2[0] > counts2[1]:
-            return counts1[0], counts2[0]+counts2[1]
-        elif counts1[0] > counts1[1] and counts2[0] == counts2[1]:
-            return counts1[0]+counts1[1], counts2[0]
         else:
             if counts1[1] < counts2[1]:
                 prop = counts1[1]/counts2[1]
