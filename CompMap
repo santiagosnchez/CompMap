@@ -6,7 +6,7 @@ import art
 import time
 #import itertools
 import numpy as np
-#import multiprocessing as mp
+import multiprocessing as mp
 try:
     import pysam
 except ImportError as er:
@@ -149,6 +149,7 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
     # loop through bedfiles
     t1 = time.time()
     for geneid in bed1_gn:
+    def parse_bed_and_count(bed1, bed2, geneid, bam1, bam2, name_indexed1, name_indexed2, as_tag, nm_tag, check_unique, more, t1, feature_counter, total_features, o):
         feature_counter += 1
         bedline1 = bed1[geneid]
         bedline2 = bed2[geneid]
@@ -166,6 +167,8 @@ def comp_map(bed1, bed2, bam1, bam2, name_indexed1, name_indexed2, out, as_tag, 
         # print progress bar
         progress = make_progress_bar(feature_counter, total_features, t1, 70)
         print("\r", progress[0] % progress[1:], end='', flush=True)
+    
+    
     o.close()
     print("\nDone processing "+str(feature_counter)+" features.")
     print(art.text2art("Finished."))
