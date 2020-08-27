@@ -5,7 +5,7 @@ import argparse
 import art
 import time
 import itertools
-        import numpy as np
+import numpy as np
 try:
     import pysam
 except ImportError as er:
