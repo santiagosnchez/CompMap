@@ -110,9 +110,16 @@ Description: # CompMap
         Run the program with the `-h` or `-help` argument to look at the different options and examples.
         
         ```
+          ____                           __  __               
+         / ___|  ___   _ __ ___   _ __  |  \/  |  __ _  _ __  
+        | |     / _ \ | '_ ` _ \ | '_ \ | |\/| | / _` || '_ \
+        | |___ | (_) || | | | | || |_) || |  | || (_| || |_) |
+         \____| \___/ |_| |_| |_|| .__/ |_|  |_| \__,_|| .__/
+                                 |_|                   |_|    
+        
         usage: CompMap [-h] --bam1 BAM1 --bam2 BAM2 --bed1 BED1 --bed2 BED2
-                       [--base BASE] [--AS_tag AS_TAG] [--NM_tag NM_TAG]
-                       [--suffix1 SUFFIX1] [--suffix2 SUFFIX2]
+                       [--base BASE] [--AS_tag AS_TAG] [--NM_tag NM_TAG] [--star]
+                       [--binom] [--suffix1 SUFFIX1] [--suffix2 SUFFIX2]
         
             Compares read mapping features of two BAM files  aligned to two different references
             and generates reference-specific read counts based on best matches.
@@ -130,6 +137,8 @@ Description: # CompMap
           --base BASE, -b BASE  base name for your output files (recommended).
           --AS_tag AS_TAG       provide an "alignment score" tag in your BAM file. Decault: AS
           --NM_tag NM_TAG       provide a "number of mismatches tag" tag in your BAM file. Default: nM
+          --star                use the NH tag to filter out multi-mapping reads.
+          --binom               use binomial distribution to sample ambiguous ASE read counts.
           --suffix1 SUFFIX1, -s1 SUFFIX1
                                 string suffix used to distinguish matches, mismatches, and ambiguous reads in -1. Default: 1
           --suffix2 SUFFIX2, -s2 SUFFIX2
