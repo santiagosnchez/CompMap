@@ -145,3 +145,35 @@ chr1	2500	3000	gene2
 chr2	0	2500	gene3
 chr3	150	1000	gene4
 ```
+
+## Test data
+
+The `test_data` directory in this repo includes the files necessary to run a test with 100 simulated genes and RNA-seq data.
+
+To run the test use the following code:
+
+```
+cd test_data
+../CompMap -1 sample_01_d1.short.bam \
+           -2 sample_01_d2.short.bam \
+           -b1 highrate_d0.1_100genes_d1.bed \
+           -b2 highrate_d0.1_100genes_d2.bed \
+           --base sample_01 \
+           --NM_tag NM \
+           -s1 d1 \
+           -s2 d2
+```
+
+You should end up with a text file named `sample_01_counts.txt` that includes allele-specifc counts.
+
+## Running simulations
+
+The repo also includes code to simulate your own data set. The scripts can be found under the `cds_and_rnaseq_simulations` directory. The simulation pipeline can be found in the `1_pipeline_sim_reads.sh` script. The requirements to run this simulation pipeline properly are:
+
+* gnu-parallel
+* samtools
+* bwa
+* featureCounts
+* CompMap
+
+Once count files are generated, the `R` script `DE_ASE_simulated_data.R` includes code to analyze the data using `DESeq2`, `tidyr`, and `ggplot2` for visualization.
