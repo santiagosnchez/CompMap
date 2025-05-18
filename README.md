@@ -13,11 +13,11 @@ Compares reads mapped to two references and counts reads for allele-specific exp
 
 `pip` will install all the dependencies and make a path-ready excecutable.
 
-    python3 -m pip install https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.0-py3-none-any.whl
+    python3 -m pip install https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.1-py3-none-any.whl
 
 also:
 
-    python3 -m pip install --user https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.0.tar.gz
+    python3 -m pip install --user https://github.com/santiagosnchez/CompMap/raw/master/dist/CompMap-1.1.tar.gz
 
 works if your systems does not take `wheel` files. Use the `--user` flag if you want to install locally.
 
